@@ -16,7 +16,6 @@ var fetchNotes = () => {
 var saveNotes = (notes) => 
 	fs.writeFileSync(FILENAME, JSON.stringify(notes));
 
-
 var addNote = (title, body) => {
 	var existingNotes = fetchNotes();
 	var note = {title,body};	
@@ -35,7 +34,12 @@ var addNote = (title, body) => {
 	
 var getAll = () => console.log(`getting all notes`);
 var getNote = (title) => console.log(`reading note [${title}]`);
-var remove = (title) => console.log(`removing note [${title}]`);
+
+var remove = (title) => {
+	var notesWithoutRemoved 
+		= fetchNotes().filter((n) => n.title !== title);
+	saveNotes(notesWithoutRemoved);
+} 
 
 module.exports.add = (a, b) => a+b
 
