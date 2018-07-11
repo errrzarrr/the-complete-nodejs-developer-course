@@ -13,5 +13,5 @@ fs.writeFileSync(FILENAME, noteAsString);
 var noteFromFile 
 	= fs.readFileSync( FILENAME );
 var note = JSON.parse(noteFromFile);
-console.log(typeof note);
+
 console.log(note.title);
