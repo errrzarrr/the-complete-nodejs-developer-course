@@ -64,5 +64,7 @@ typings/
 *.txt
 *.gz
 
+# especific files
 package-lock.json
+notes-data.json
 
