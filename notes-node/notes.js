@@ -33,7 +33,17 @@ var addNote = (title, body) => {
 } 
 	
 var getAll = () => console.log(`getting all notes`);
-var getNote = (title) => console.log(`reading note [${title}]`);
+
+var getNote = (title) => {	
+	var note 
+		= fetchNotes().filter((n) => n.title === title);
+	
+	console.log(`reading note "${title}"`);
+	if(note.length >= 1) 
+		console.log(`\t"${note[0].body}"`);	
+	else 
+		console.log(`\tNote not found.`);
+} 
 
 var remove = (title) => {
 	var existingNotes = fetchNotes();
