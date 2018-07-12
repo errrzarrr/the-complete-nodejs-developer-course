@@ -36,16 +36,13 @@ var getAll = () => console.log(`getting all notes`);
 var getNote = (title) => console.log(`reading note [${title}]`);
 
 var remove = (title) => {
-	var found = false;
+	var existingNotes = fetchNotes();
 	var notesWithoutRemoved 
-		= fetchNotes().filter((n) => {
-			if(n.title === title)
-				found = true;
-			return n.title !== title
-		});
-	saveNotes(notesWithoutRemoved);
+		= existingNotes.filter((n) => n.title !== title);
+	var found = notesWithoutRemoved.length < existingNotes.length; 
 	console.log(found? `Note titled "${title}" removed` : `Note titled "${title}" wasn't found.`);
-} 
+	saveNotes(notesWithoutRemoved);
+}
 
 module.exports.add = (a, b) => a+b
 
