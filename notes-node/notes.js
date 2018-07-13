@@ -32,7 +32,13 @@ var addNote = (title, body) => {
 	}	
 } 
 	
-var getAll = () => console.log(`getting all notes`);
+var getAll = () => {
+	var notes = fetchNotes();
+	console.log(`getting all notes: ${notes.length} found`);
+	notes.forEach( n => {
+		console.log(`\t${n.title}:\t${n.body}`);
+	});	
+} 
 
 var getNote = (title) => {	
 	var note 
