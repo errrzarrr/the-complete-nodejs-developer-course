@@ -1,4 +1,4 @@
-const title =  {
+const title = {
 	describe: "Title for the note"
 	,alias: "t"
 	,demand: true
@@ -33,5 +33,9 @@ const remove = {
 	,options: {title}
 };
 
-module.exports 
-	= { add,list,read,remove };
+module.exports = { 
+	add		:	new Array(add.name, add.description,add.options)
+	,list	:	new Array(list.name, list.description)
+	,read	:	new Array(read.name, read.description, read.options)
+	,remove	:	new Array(remove.name, remove.description, remove.options)
+};

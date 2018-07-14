@@ -5,10 +5,10 @@ const yargs = require('yargs');
 const comHelp = require('./helpers/commands.js');
 var argv = 
 	yargs
-	.command(comHelp.add.name, comHelp.add.description ,comHelp.add.options)
-	.command(comHelp.list.name, comHelp.list.description)
-	.command(comHelp.read.name, comHelp.read.description, comHelp.read.options)
-	.command(comHelp.remove.name, comHelp.remove.description, comHelp.remove.options)
+	.command(...comHelp.add)
+	.command(...comHelp.list)
+	.command(...comHelp.read)
+	.command(...comHelp.remove)
 	.help()
 	.argv;
 
