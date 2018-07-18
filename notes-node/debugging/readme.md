@@ -11,7 +11,7 @@
 	* once into _debug_ mode you can go back and forth into _repl_ mode as many times as needed.
 
 ## from chrome dev tools 
-* run  `node --inspect-blk file.js` to start.
+* run  `node --inspect-brk file.js` to start.
 * in chrome visit `chrome://inspect/#devices` -> _Open dedicated DevTools for Node_
 	* Blue (`F8`) button works the same as `c`, continue exectution until a breakpoint is found.
 	* `F10` button same as `n`
