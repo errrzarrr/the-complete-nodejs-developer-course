@@ -17,7 +17,7 @@ const argv = yargs
 		.argv;
 		
 var url 
-	= `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent( argv.address )}&key=${ process.env.JWR_API }`;
+	= `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent( argv.address )}&key=${ process.env.GEOKEY }`;
 
 var reqObj = { url, json: true };
 console.log(reqObj);

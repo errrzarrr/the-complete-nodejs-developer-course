@@ -1,3 +1,8 @@
-# export JWR_API='...';
-# echo $JWR_API;
-# To retrieve it from node: process.env.JWR_API;
+# export GEOKEY='...';
+# echo $GEOKEY;
+# To retrieve it from node: process.env.GEOKEY;
+# export FORECASTKEY='';
+# echo $FORECASTKEY;
+# To retrieve it from node: process.env.FORECASTKEY;
+
+ 
