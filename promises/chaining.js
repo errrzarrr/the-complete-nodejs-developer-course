@@ -6,21 +6,25 @@ const getRandomInt
 const placeBet = (amount) => {
 	var boolRand 
 		= getRandomInt(0,2)  === 1 ? true : false;
-	if(boolRand)
-		return Promise.resolve(amount);
-	else
-		return Promise.reject( 'Bets not open now' );
+	return new Promise( (resolve, reject) => {
+		if(boolRand)
+			resolve(amount);
+		else
+			reject( 'Bets not open now' );
+	});
 };
 
 const  throwDice = (guess) => {
 	var dice = getRandomInt(1,6);
-	if( guess === dice)
-		return 'succeed';
-	else
-		return Promise.reject('try again');
+	return new Promise( (resolve, reject) => {
+		if( guess === dice)
+			resolve('succeed');
+		else
+			reject('try again');
+	});
 };
 
 placeBet(5000)
-	.then( 	throwDice(1) )
+	.then( () => {return throwDice(1)} )
 	.then( (res) => console.log(res) )
 	.catch( (res) => console.log(res) );
