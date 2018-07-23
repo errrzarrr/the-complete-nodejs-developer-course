@@ -9,6 +9,7 @@
   "author": "Andrew Mead",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.18.0",
     "lodash": "^4.17.10",
     "nodemon": "^1.18.2",
     "request": "^2.87.0",
