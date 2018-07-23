@@ -56,7 +56,7 @@ let getForecast = (coord) => {
 			console.log(`\tRequesting weather info for given coordinates`);
 			if(error)
 				reject(`An error has befallen. Unable to connect to ${error.host}`);
-			else if(new Number(resp.statusCode) >= 400 && new Number(resp.statusCode) <= 499 ) 
+			else if( /^4[{\d}]{2}$/.test(resp.statusCode) ) 
 				reject('There must be an error in request. Verify');
 			else if(!error && new Number(resp.statusCode) == 200 )
 				resolve(`\ttemp: ${body.currently.temperature} °C (that feels like ${body.currently.apparentTemperature})`);
