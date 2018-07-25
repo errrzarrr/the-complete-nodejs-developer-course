@@ -1,8 +1,11 @@
 const express = require('express');
 const hbs = require('hbs');
+const fs = require('fs');
 
 var app = express();
 const PORT = 3000;
+let obj = {};
+const LOG_FILE= 'log/server.log';
 
 // app.get(``, (req, res) => {});
  
@@ -25,9 +28,19 @@ hbs.registerHelper('linkify', (href, text) => {
 	return `<a href='${href}'>${text}</a>`;
 });
 
+app.use((req, res, next) => {
+	var d = new Date();
+	var now 
+		= d.toISOString().slice(0,10) +' '+d.toLocaleTimeString();
+	var log = `[${now}] ${req.method} : ${req.url}`;
 
-let obj = {};
-
+	console.log(log);
+	fs.appendFile(LOG_FILE, log+'\n', 'utf8', (error) => {
+		if(error)
+			console.log(`An error happened while writting into ${LOG_FILE}`);
+	})
+	next();
+});
 app.get(`/`, (req, res) => {
 	obj = {
 		pageTitle:	"Home"
@@ -74,7 +87,6 @@ app.get(`/ourproducts`, (req, res) => {
 	};
 	res.render('ourproducts.hbs', obj);
 });
-
 app.listen(PORT, () =>
 	console.log(`Server up & running on port ${PORT}`)
 );
