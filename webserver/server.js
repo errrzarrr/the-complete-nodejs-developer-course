@@ -17,6 +17,14 @@ app.set('view engine', 'hbs');
 hbs.registerPartials(`${__dirname}/views/partials`);
 hbs.registerHelper('currentYear', () => new Date().getFullYear());
 hbs.registerHelper('codeToChar', (num) => String.fromCodePoint(num));
+hbs.registerHelper('linkify', (href, text) => {
+	//href = handlebars.escapeExpression(href);
+	//text = handlebars.escapeExpression(text);	
+	//	return new Handlebars.SafeString(`<a href='${href}'>${text}</a>`);
+	
+	return `<a href='${href}'>${text}</a>`;
+});
+
 
 let obj = {};
 
@@ -42,6 +50,27 @@ app.get(`/ourproducts`, (req, res) => {
 	obj = {
 		pageTitle: "Our Products"
 		,subMessage: "Welcome to our wide catalogue of products we have to offer you."
+		,currencySymbol:"$"
+		,products: [ {
+				name:"G.H. Bass & Co. Men's Bennett Boot"
+				,price:80.08
+				,description:"Rough but elegant manly chukka boot. Upper made of genuine leather, Rubber sole"
+				,available: true
+			}
+			,{
+				name:"Nunn Bush Men's Quail Valley Slip-on Loafer"
+				,price:39.99
+				,description:"Elegant but fresh lightweight driver-style shoes. Man Made, Imported, Synthetic sole"
+				,available: false
+			}
+			,{
+				name:"BRUNO MARC NEW YORK Men's Desert Storm  Boots"
+				,price:21.99
+				,description:"suede leather suede leather, comes in a wide variety of colors"
+				,available: true
+			},
+		
+		]
 	};
 	res.render('ourproducts.hbs', obj);
 });

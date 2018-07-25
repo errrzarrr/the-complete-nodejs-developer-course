@@ -1,14 +1,28 @@
 <!DOCTYPE HTML>
 <HTML>
-    <head>
-        <link/>
-        <meta charset="utf-8"/>
-        <title>{{pageTitle}} Page</title>        
-    </head>
-    <body>
-        {{! handlebar's prefabricated templates —A.K.A. 'partials' }}
-        {{> header}}
-        {{> footer}}
-        <script src=""/>
-    </body>
+	<head>	
+		<link rel="stylesheet" type="text/css" src="./styles/hor_menu.css"></link>
+		<meta charset="utf-8"/>
+		<title>{{pageTitle}} Page</title>        
+	</head>
+	<body>
+		{{! handlebar's prefabricated templates —A.K.A. 'partials' }}
+		{{> header}}
+		<div id='product-catalogue'>
+			{{#each products}}
+				<strong>{{name}}</strong>
+				<p><em>{{description}}</em></p>
+				<p>{{price}} $</p>            
+				<p class="product-action">
+					{{#if available}}
+						Buy it Now!
+					{{else}}
+						Notify me when this is available
+					{{/if}}
+				</p>
+			{{/each}}
+		</div>
+		{{> footer}}
+		<script src=""/>
+	</body>
 </HTML>
