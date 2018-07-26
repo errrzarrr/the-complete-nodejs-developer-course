@@ -3,15 +3,12 @@ const hbs = require('hbs');
 const fs = require('fs');
 
 var app = express();
-const PORT = 3000;
+const PORT = process.env.WEBSERVER_PORT || 3000;
 let obj = {};
 const LOG_FILE= 'log/server.log';
 
 // app.get(``, (req, res) => {});
  
-// everything inside this dir is publicly exposed
-app.use(express.static(`${__dirname}/public`));
-
 /* by default it looks into 'views' dir
 * to set it otherwise:
 * app.set('views', __dirname+'/altDirName');   
@@ -28,6 +25,18 @@ hbs.registerHelper('linkify', (href, text) => {
 	return `<a href='${href}'>${text}</a>`;
 });
 
+/* Since this isn't next()'ed, the execution is halted
+* hence, subsequent pages or methods aren't shown.
+* Take notice this should be done BEFORE exposing the '/public' dir.
+* Otherwise, resources there would be accessible even under maintenance.
+*
+* Uncomment to go into maintenance mode.
+ app.use((req, res, next) => res.render('maintenance.hbs') );	
+*/
+
+// everything inside this dir is publicly exposed
+app.use(express.static(`${__dirname}/public`));
+
 app.use((req, res, next) => {
 	var d = new Date();
 	var now 
@@ -38,9 +47,10 @@ app.use((req, res, next) => {
 	fs.appendFile(LOG_FILE, log+'\n', 'utf8', (error) => {
 		if(error)
 			console.log(`An error happened while writting into ${LOG_FILE}`);
-	})
+	});
 	next();
 });
+
 app.get(`/`, (req, res) => {
 	obj = {
 		pageTitle:	"Home"
