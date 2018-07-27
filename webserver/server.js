@@ -5,7 +5,7 @@ const fs = require('fs');
 var app = express();
 const PORT = process.env.WEBSERVER_PORT || 3000;
 let obj = {};
-const LOG_FILE= 'log/server.log';
+const LOG_FILE = 'log/requests.log';
 
 // app.get(``, (req, res) => {});
  
@@ -37,7 +37,7 @@ hbs.registerHelper('linkify', (href, text) => {
 // everything inside this dir is publicly exposed
 app.use(express.static(`${__dirname}/public`));
 
-app.use((req, res, next) => {
+app.use((req, res, next) => {  
 	var d = new Date();
 	var now 
 		= d.toISOString().slice(0,10) +' '+d.toLocaleTimeString();
