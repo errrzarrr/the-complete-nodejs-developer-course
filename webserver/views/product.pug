@@ -1,0 +1,21 @@
+doctype html
+html(lang="en")
+	head
+		link(rel="stylesheet" type="text/css" src="./styles/hor_menu.css")
+		meta(charset="utf-8")
+		title= pageTitle
+	body
+		h1 #{product.name}
+		p#subMessage #{subMessage}
+		div#productDetails
+			p Categories:&nbsp;
+				span #{ product.categories.join(', ') }
+			p#price Price:&nbsp;
+				span #{product.price}&nbsp;#{currencySymbol}&nbsp;
+				span.product-action #{ product.available? 'Buy it Now!' : 'Notify me when this is available' }
+			p#productDescription
+				span #{product.description}
+		div#shippingPolicy
+			include ./partials/shippingPolicy.pug
+	footer Created by Roberto M. —Copyright ©#{currentYear}				
+						

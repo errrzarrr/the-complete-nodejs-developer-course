@@ -1,6 +1,7 @@
 const express = require('express');
 const hbs = require('hbs');
 const fs = require('fs');
+const pug = require('pug');
 
 var app = express();
 const PORT = process.env.WEBSERVER_PORT || 3000;
@@ -96,6 +97,25 @@ app.get(`/ourproducts`, (req, res) => {
 		]
 	};
 	res.render('ourproducts.hbs', obj);
+});
+app.get(`/product`, (req, res) => {
+	obj = {
+		pageTitle: "Product Details"
+		,subMessage: "Product broad and deep details for this particular product —so you can buy best informed"
+		,currencySymbol:"$"
+		,currentYear: 2018
+		,product: {
+			name:"BRUNO MARC NEW YORK Men's Desert Storm  Boots"
+			,price:21.99
+			,description:"suede leather suede leather, comes in a wide variety of colors"
+			,available: true
+			,weight: 2
+			,categories: ['shoes', 'boots', 'casual', 'for work']				
+		}
+	};
+	
+	var html = pug.renderFile('./views/product.pug', obj);
+	res.send(html);
 });
 app.listen(PORT, () =>
 	console.log(`Server up & running on port ${PORT}`)
