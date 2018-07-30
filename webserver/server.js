@@ -64,11 +64,13 @@ app.get(`/about`, (req, res) => {
 		name: 'Rob'
 		,likes: [ 'Rock', 'Metal', 'PlayStation', 'Coding', 'Weightlifting', 'Running' ]
 	};
-	res.send(about);
+	res.status(200).send(about);
 });
 app.get(`/bad`, (req, res) => {
-	var err = {errorMessage: "Error. This didn't went well."};
-	res.send(err);
+	var err = {errorMessage: "Error. This request didn't went well."};
+	res.status(400)
+		.set('X-Powered-By', 'Rob API')
+		.send(err);
 });
 app.get(`/ourproducts`, (req, res) => {
 	obj = {
@@ -92,8 +94,7 @@ app.get(`/ourproducts`, (req, res) => {
 				,price:21.99
 				,description:"suede leather suede leather, comes in a wide variety of colors"
 				,available: true
-			},
-		
+			}		
 		]
 	};
 	res.render('ourproducts.hbs', obj);
@@ -117,6 +118,12 @@ app.get(`/product`, (req, res) => {
 	var html = pug.renderFile('./views/product.pug', obj);
 	res.send(html);
 });
+app.get(`/helloworld`, (req, res) => 	
+	res.status(200).send('Hello World')
+);
+
 app.listen(PORT, () =>
 	console.log(`Server up & running on port ${PORT}`)
 );
+
+module.exports.app = app;
