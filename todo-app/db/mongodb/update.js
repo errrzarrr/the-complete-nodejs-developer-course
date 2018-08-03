@@ -21,7 +21,7 @@ MongoClient.connect(URL, (err, client) => {
 		);
 	// findOneAndUpdate(filter, update, options)
 	// returnOriginal:false returns the updated doc instead of the older one
-	dbo.collection('users').findOneAndUpdate( {location: /Liberty Street/i}, {$set:{name:"Voluntary Street"}}, {returnOriginal:false})
+	dbo.collection('users').findOneAndUpdate( {location: /Liberty Street/i}, {$set:{location:"Voluntary Street", name:"Mike Jefferson"}}, {returnOriginal:false})
 		.then((result) => {
 			console.log(result);
 		})
