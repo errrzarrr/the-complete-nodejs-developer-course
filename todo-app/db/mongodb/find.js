@@ -1,38 +1,38 @@
 const {MongoClient, ObjectId} = require('mongodb');
+const config = require('../dbconfig.js');
 
 let objId =  new ObjectId();
-const URL = `mongodb://localhost:27017`;
-let dbName = 'todoApp';
 
-MongoClient.connect(URL, (err, client) => {
+MongoClient.connect(config.URL, (err, client) => {
 	if(err)
-		return console.log('Unable to connect to MongoDB server');
+		return config.unableToConnect()
 		
-	console.log('Connected to MongoDB server');
-	var dbo = client.db(dbName);
+	config.connected()
+	var dbo = client.db(config.DB);
 
-	dbo.collection('todos').find().count()
+	dbo.collection(config.COLLECTIONS.todos).find().count()
 		.then((count) => {
 			console.log(`${count} todos total`);
 		})
 		.catch((err) =>
-			console.log('unable to fetch todos', err)
+			config.unableFetchTodo(err)
 		);
-	dbo.collection('todos').find().toArray()
+	dbo.collection(config.COLLECTIONS.todos).find().toArray()
 		.then((docs) => {
 			console.log('All todos');
 			console.log(JSON.stringify(docs, FIELD_FILTER=undefined, INDENT=2));
 		})
 		.catch((err) => 
-			console.log('unable to fetch todos', err)
+			config.unableFetchTodo(err)
 		);
-	dbo.collection('users').find({name:'Vanessa'}).toArray()
+	dbo.collection(config.COLLECTIONS.users).find({name:'Vanessa'}).toArray()
 		.then((docs) => {
 			console.log('All users with a given name');
 			console.log(JSON.stringify(docs, FIELD_FILTER=undefined, INDENT=2));
 		})
 		.catch((err) => 
-			console.log('unable to fetch todos', err)
+			config.unableFetchTodo(err)
 		);
+		client.close();
 		
 }); 

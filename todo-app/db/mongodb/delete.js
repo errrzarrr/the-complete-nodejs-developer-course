@@ -1,41 +1,29 @@
 const {MongoClient, ObjectId} = require('mongodb');
+const config = require('../dbconfig.js');
 
-const URL = `mongodb://localhost:27017`;
-let dbName = 'todoApp';
-
-MongoClient.connect(URL, (err, client) => {
+MongoClient.connect(config.URL, (err, client) => {
 	if(err)
-		return console.log('Unable to connect to MongoDB server');
+		return config.unableToConnect();
 		
-	console.log('Connected to MongoDB server');
-	var dbo = client.db(dbName);
+	config.connected();
+	var dbo = client.db(config.DB);
 
-	dbo.collection('todos').deleteMany({completed:true})
-		.then((result) => {
-			console.log(result);
-		})
-		.catch((err) =>
-			console.log('unable to delete todos', err)
-        );
+	dbo.collection(config.COLLECTIONS.todos).deleteMany({completed:true})
+		.then( (result) => console.log(result) )
+		.catch( (err) => config.unableToDeleteTodo(err) );
 
     /* findOneAndDelete() has the advantage over deleteOne() 
     * that the response is a more especific & shorter reponse  
     * containing whole deleted document, _id included.
     * lastErrorObject property indicates whether successful state or not
     */
-    dbo.collection('todos').findOneAndDelete({completed:false})
-        .then((result) => {
-            console.log(result);
-        })
-        .catch((err) =>
-            console.log('unable to delete todo', err)
-        );
-    dbo.collection('todos').findOneAndDelete({_id : ObjectId("5b6307cbe040e7221837d4a8") })
-		.then((result) => {
-			console.log(result);
-		})
-		.catch((err) =>
-			console.log('unable to delete todo', err)
-		);    
+    dbo.collection(config.COLLECTIONS.todos).findOneAndDelete({completed:false})
+		.then( (result) => console.log(result) )
+        .catch( (err) => config.unableToDeleteTodo(err) );
+ 
+	dbo.collection(config.COLLECTIONS.todos).findOneAndDelete({_id : ObjectId("5b6307cbe040e7221837d4a8") })
+		.then( (result) => console.log(result) )
+		.catch( (err) => config.unableToDeleteTodo(err) );
+
     client.close();
 }); 

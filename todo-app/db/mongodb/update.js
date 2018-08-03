@@ -1,32 +1,28 @@
 const {MongoClient, ObjectId} = require('mongodb');
+const config = require('../dbconfig.js');
 
 let objId =  new ObjectId();
-const URL = `mongodb://localhost:27017`;
-let dbName = 'todoApp';
 
-MongoClient.connect(URL, (err, client) => {
+MongoClient.connect(config.URL, (err, client) => {
 	if(err)
-		return console.log('Unable to connect to MongoDB server');
+		return config.unableToConnect();
 		
-	console.log('Connected to MongoDB server');
-	var dbo = client.db(dbName);
+	config.connected();
+	var dbo = client.db(config.DB);
 	
 	// findOneAndUpdate(filter, update)
-	dbo.collection('users').findOneAndUpdate( {name: "Andy"}, { $set:{name:"Andy V"}, $inc:{age:1} })
+	dbo.collection(config.COLLECTIONS.users).findOneAndUpdate( {name: "Andy"}, { $set:{name:"Andy V"}, $inc:{age:1} })
 		.then((result) => {
 			console.log(result);
 		})
-		.catch((err) =>
-			console.log('unable to update users', err)
-		);
+		.catch( (err) => config.unableUpdateUser(err) );
+	
 	// findOneAndUpdate(filter, update, options)
 	// returnOriginal:false returns the updated doc instead of the older one
-	dbo.collection('users').findOneAndUpdate( {location: /Liberty Street/i}, {$set:{location:"Voluntary Street", name:"Mike Jefferson"}}, {returnOriginal:false})
+	dbo.collection(config.COLLECTIONS.users).findOneAndUpdate( {location: /Liberty Street/i}, {$set:{location:"Voluntary Street", name:"Mike Jefferson"}}, {returnOriginal:false})
 		.then((result) => {
 			console.log(result);
 		})
-		.catch((err) =>
-			console.log('unable to update users', err)
-		);	
+		.catch( (err) => config.unableUpdateUser(err) );	
 	client.close();	
 });
