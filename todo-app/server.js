@@ -31,6 +31,12 @@ app.post('/user', (req, res) => {
         .catch( (error) => res.send(`${error.name}: ${error.message}`) ); 
 });
 
+app.get('/todo', (req, res) => {
+    Todo.find()
+        .then(todos => res.status(200).send( {todos} ))
+        .catch(e => res.status(400).send(e));
+});
+
 app.listen(PORT, () =>
     console.log(`todo-app server up & running on port ${PORT}`)
 );
