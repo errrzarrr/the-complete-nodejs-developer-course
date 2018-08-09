@@ -1,12 +1,13 @@
 const expect = require('expect');
-const supertest = require('supertest');
+const supertest =  require('supertest');
+let {ObjectID} = require('mongodb');
 
 const {app} = require('../server');
 const {Todo} = require('../db/models/Todo');
 
 const testTodos = [
-	{text: 'test todo #1'}
-	,{text: 'test todo #1'}
+	{_id: new ObjectID(), text: 'test todo #1'}
+	,{_id: new ObjectID(), text: 'test todo #1'}
 ];
 
 // WARNING: This wipes out named collection. A testing DB is needed for this.
@@ -79,4 +80,29 @@ describe('GET /todo', () => {
 				}
 			});
 	});
+	it('should retrieve a todo given an  Id', (done) => {
+		var testId = testTodos[0]._id.toHexString();
+		supertest(app)
+			.get(`/todo/${testId}`)
+			.expect(200)
+			.expect((res) => {
+				expect(res.body.todo.text).toBe(testTodos[0].text)
+			})
+			.end(done);
+	}); 
+	it('should return 404 given an inexistent Id', (done) => {
+		var testId = new ObjectID().toHexString();
+		supertest(app)
+			.get(`/todo/${testId}`)
+			.expect(404)
+			.end(done);
+	});
+	it('should return 400 given an non-valid Id', (done) => {
+		var testId = 'abc123xyz';
+		supertest(app)
+			.get(`/todo/${testId}/`)
+			.expect(400)
+			.end(done);
+	});
+
 });
