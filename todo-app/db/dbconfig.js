@@ -1,6 +1,6 @@
 let mongoose = require('mongoose');
 
-const PORT = 27017;
+const PORT = process.env.MONGO_PORT || 27017;
 const URL = `mongodb://localhost:${PORT}`;
 const DB = 'todoApp';
 
