@@ -1,6 +1,6 @@
 let express = require('express');
 let app = express();
-const PORT = process.env.WEBSERVER_PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 var bodyParser = require('body-parser');
 let {ObjectID} = require('mongodb');
@@ -52,6 +52,22 @@ app.get('/todo/:id', (req, res) => {
 			})
 			.catch( (e) => res.status(400).send() );
 });
+app.delete('/todo/:id', (req, res) => {
+	var id = req.params.id;
+
+	if(!ObjectID.isValid(id)) 
+		res.status(400).send();
+	else
+		Todo.findByIdAndRemove(id)
+			.then( (todo) => {
+				if(!todo)
+					res.status(404).send();
+				else
+					res.status(200).send({todo}) 
+			})
+			.catch( (e) => res.status(400).send() );
+});
+
 
 app.listen(PORT, () =>
 	console.log(`todo-app server up & running on port ${PORT}`)
