@@ -7,7 +7,7 @@ const {Todo} = require('../db/models/Todo');
 
 const testTodos = [
 	{_id: new ObjectID(), text: 'test todo #1'}
-	,{_id: new ObjectID(), text: 'test todo #2'}
+	,{_id: new ObjectID(), text: 'test todo #2', completed:true, completedAt:111}
 ];
 
 const nonValidId = 'abc123xyz';
@@ -126,7 +126,6 @@ describe('DELETE /todo', () => {
 						})
 						.catch((e) => done(e));
 			});
-
 	});
 
 	it('should return 404 given an inexistent _id', (done) => {
@@ -143,5 +142,53 @@ describe('DELETE /todo', () => {
 			.expect(400)
 			.end(done); 
 	});
-
 });
+
+describe('PATCH /todo', () => {
+
+	it('should update a todo given the _id', (done) => {
+		var testId = testTodos[0]._id.toHexString();
+		var testBody = {text: "updated text", completed:true};
+		
+		supertest(app)
+			.patch(`/todo/${testId}/`)
+			.send(testBody)
+			.expect(200)
+			.expect((res) => {
+				expect(res.body.todo.text).toBe(testBody.text);
+				expect(res.body.todo.completed).toBe(testBody.completed);
+				expect(res.body.todo.completedAt).toBeA('number');
+			})
+			.end(done);
+	});
+
+	it('should clear completedAt when todo is set as not completed', (done) => {
+		var testId = testTodos[1]._id.toHexString();
+		var testBody = {text: "updated text", completed:false};
+		supertest(app)
+			.patch(`/todo/${testId}/`)
+			.send(testBody)
+			.expect(200)
+			.expect((res) => {
+				expect(res.body.todo.text).toBe(testBody.text);
+				expect(res.body.todo.completed).toBe(testBody.completed);
+				expect(res.body.todo.completedAt).toNotExist();
+			})
+			.end(done);
+	});
+
+	it('should return 404 given an inexistent _id', (done) => {
+		var testId = new ObjectID().toHexString();
+		supertest(app)
+			.patch(`/todo/${testId}`)
+			.expect(404)
+			.end(done);
+	});
+
+	it('should return 400 given a non-valid _id', (done) => {
+		supertest(app)
+			.patch(`/todo/${nonValidId}/`)
+			.expect(400)
+			.end(done); 
+	});	
+}); 
