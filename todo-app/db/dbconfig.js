@@ -2,7 +2,7 @@ let mongoose = require('mongoose');
 
 const PORT = process.env.MONGO_PORT || 27017;
 const URL = `mongodb://localhost:${PORT}`;
-const DB = 'todoApp';
+const DB =  process.env.ENV_TABLE || 'todoApp';
 
 const COLLECTIONS = {
 	todos: 'todos'

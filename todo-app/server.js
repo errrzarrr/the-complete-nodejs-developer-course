@@ -1,7 +1,7 @@
 let express = require('express');
 let app = express();
 const PORT = process.env.PORT || 3000;
-
+require('./config/env_var.js');
 const _ = require('lodash');
 var bodyParser = require('body-parser');
 let {ObjectID} = require('mongodb');
