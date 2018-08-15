@@ -23,15 +23,6 @@ app.post('/todo', (req, res) => {
 		.catch( (error) => res.status(400).send(`${error.name}: ${error.message}`) ); 
 });
 
-app.post('/user', (req, res) => {
-	// console.log('POST /user received body: ', req.body);
-	user = 
-		new User({name:req.body.name, email:req.body.email, location:req.body.location, age:req.body.age});
-	user.save()
-		.then( (doc) => res.status(201).send(doc) )
-		.catch( (error) => res.send(`${error.name}: ${error.message}`) ); 
-});
-
 app.get('/todo', (req, res) => {
 	Todo.find()
 		.then(todos => res.status(200).send( {todos} ))
@@ -95,6 +86,14 @@ app.patch('/todo/:id', (req, res) => {
 		.catch( (e) => res.status(400).send() );
 });
 
+app.post('/user', (req, res) => {
+	var body = _.pick(req.body, ['email', 'name', 'age', 'location', 'password']);
+	var user = new User(body);
+	
+	user.save()
+		.then((user) => res.status(201).send(user) )
+		.catch((e) => res.status(400).send(e))
+});
 
 app.listen(PORT, () =>
 	console.log(`todo-app server up & running on port ${PORT}`)
