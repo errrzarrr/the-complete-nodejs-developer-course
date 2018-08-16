@@ -91,8 +91,17 @@ app.post('/user', (req, res) => {
 	var user = new User(body);
 	
 	user.save()
-		.then((user) => res.status(201).send(user) )
+		.then( () => {
+			return user.generateAuthToken()
+		})
+		.then((token) => 
+			res.header('x-auth',token).status(201).send(user)
+		)
 		.catch((e) => res.status(400).send(e))
+}); 
+
+app.post('/user/me', (req, res) => {
+	
 });
 
 app.listen(PORT, () =>
