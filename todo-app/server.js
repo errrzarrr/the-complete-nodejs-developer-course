@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 let {ObjectID} = require('mongodb');
 var {Todo} = require('./db/models/Todo');
 var {User} = require('./db/models/User');
+var {authenticate}= require('./middleware/auth');
 
 let todo;
 let user;
@@ -100,8 +101,8 @@ app.post('/user', (req, res) => {
 		.catch((e) => res.status(400).send(e))
 }); 
 
-app.post('/user/me', (req, res) => {
-	
+app.get('/user/me', authenticate, (req, res) => {
+	res.status(200).send(req.user);
 });
 
 app.listen(PORT, () =>

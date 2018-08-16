@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const SALT = process.env.SALT || 'G:a4j.';
 
-var UsersSchema = new mongoose.Schema({
+var UserSchema = new mongoose.Schema({
 	name: {type:String, required:true, minLength:1, trim:true}
 	,age: {type:Number, default:null}
 	,location: {type:String, default:null, trim:true}
@@ -33,8 +33,9 @@ var UsersSchema = new mongoose.Schema({
 	}]
 });
  
-// a traditiona function declaration, because arrows functions dont bind 'this' keyword
-UsersSchema.methods.generateAuthToken = function() {
+// use a traditional function declaration, because arrows functions dont bind 'this' keyword
+UserSchema.methods.generateAuthToken = function() {
+	// instance method for the individual document, with lowercase name
 	var user = this;
 	var access = 'auth';
 	var token = jwt.sign({_id: user._id.toHexString(), access}, SALT).toString();
@@ -45,11 +46,33 @@ UsersSchema.methods.generateAuthToken = function() {
 };
 
 // overrides mongo's toJSON function
-UsersSchema.methods.toJSON = function() {
+UserSchema.methods.toJSON = function() {
+	// instance method
 	var user = this;
 	return _.pick(user.toObject(), ['_id','name','age','location','email']);
 };
+
+UserSchema.statics.findByToken = function(tkn) {
+	// Model method, with uppercase first letter 
+	var User = this;
+	var decoded;
+
+	try {
+		decoded = jwt.verify(tkn, SALT);
+		
+	} catch (error) {
+		return Promise.reject('some was missing in your auth');
+	}
+	// returns a Promise
+	return User.findOne({
+		_id: decoded._id
+		,'tokens.token': tkn
+		,'tokens.access': 'auth'
+	});
+
+}
+
  var User = 
-	mongoose.model(COLLECTIONS.users, UsersSchema);
+	mongoose.model(COLLECTIONS.users, UserSchema);
 
  module.exports.User = User;
