@@ -2,7 +2,10 @@ var {mongoose, COLLECTIONS} = require('../dbconfig');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
+
 const SALT = process.env.SALT || 'G:a4j.';
+const ROUNDS = 12;
 
 var UserSchema = new mongoose.Schema({
 	name: {type:String, required:true, minLength:1, trim:true}
@@ -58,8 +61,7 @@ UserSchema.statics.findByToken = function(tkn) {
 	var decoded;
 
 	try {
-		decoded = jwt.verify(tkn, SALT);
-		
+		decoded = jwt.verify(tkn, SALT);	
 	} catch (error) {
 		return Promise.reject('some was missing in your auth');
 	}
@@ -70,9 +72,24 @@ UserSchema.statics.findByToken = function(tkn) {
 		,'tokens.access': 'auth'
 	});
 
-}
+};
 
- var User = 
+// Mongoose Middleware (also called pre and post hooks) are functions called before or after certain events occur.
+UserSchema.pre('save', function(next) {
+	var user = this;
+	if( user.isModified('password') )
+	    bcrypt.genSalt(ROUNDS, (err, salt) => {
+			console.log('salt: '+salt+' size:'+salt.length);
+    		bcrypt.hash(user.password, salt, (err, hashedPass) => {
+				user.password = hashedPass;
+				next();
+			});
+		});
+	else 
+		next();
+});
+
+var User = 
 	mongoose.model(COLLECTIONS.users, UserSchema);
 
  module.exports.User = User;

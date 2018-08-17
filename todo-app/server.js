@@ -98,7 +98,7 @@ app.post('/user', (req, res) => {
 		.then((token) => 
 			res.header('x-auth',token).status(201).send(user)
 		)
-		.catch((e) => res.status(400).send(e))
+		.catch((e) => res.status(400).send(e));
 }); 
 
 app.get('/user/me', authenticate, (req, res) => {
