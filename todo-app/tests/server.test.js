@@ -295,7 +295,7 @@ describe('/user routes', () => {
 			var name = 'Test Dummy';
 			supertest(app)
 				.post('/user')
-				.send({name, email:users[0].email, password})
+				.send({name, email:testUsers[0].email, password})
 				.expect(400)
 				.expect(res => {
 					expect(res.body.message).toInclude('duplicate')
