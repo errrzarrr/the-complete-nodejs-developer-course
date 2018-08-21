@@ -105,6 +105,17 @@ app.get('/user/me', authenticate, (req, res) => {
 	res.status(200).send(req.user);
 });
 
+app.post('/user/login', (req, res) => {
+	var body = _.pick(req.body, ['email','password']);
+	
+	User.findByCredentials(body.email,body.password)
+		.then( user => {
+			return user.generateAuthToken()
+				.then(token => res.header('x-auth',token).send(user) )			
+		})
+		.catch( e => res.status(400).send() );
+});
+
 app.listen(PORT, () =>
 	console.log(`todo-app server up & running on port ${PORT}`)
 );
