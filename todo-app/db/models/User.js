@@ -90,6 +90,11 @@ UserSchema.statics.findByCredentials = function(email, password) {
 	});
 };
 
+UserSchema.methods.removeToken = function(token) {
+	var user = this;
+	return user.update(	{ $pull: { tokens: {token} } } );
+};
+
 // Mongoose Middleware (also called pre and post hooks) are functions called before or after certain events occur.
 UserSchema.pre('save', function(next) {
 	var user = this;
