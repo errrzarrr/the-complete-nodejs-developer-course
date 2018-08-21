@@ -225,9 +225,10 @@ describe('/todo routes', () => {
 		});	
 	});
 });
+
 describe('/user routes', () => {
-	describe('GET /user/me', () => {
 	//	it('', (done) => {});
+	describe('GET /user/me', () => {
 		it('should return user given valid authentication', (done) => {
 			supertest(app)
 				.get('/user/me')
@@ -240,6 +241,7 @@ describe('/user routes', () => {
 				})
 				.end(done);
 		});
+
 		it('should return 401 given non-valid authentication', (done) => {
 			supertest(app)
 				.get('/user/me')
@@ -301,6 +303,52 @@ describe('/user routes', () => {
 					expect(res.body.message).toInclude('duplicate')
 				})
 				.end(done);
+		});
+	});
+
+	describe('POST /user/login', () => {
+		it('should provide an access token given proper credentials', (done) => {
+			supertest(app)
+				.post('/user/login')
+				.send({email:testUsers[1].email, password:testUsers[1].password})
+				.expect(200)
+				.expect(res => {
+					expect(res.headers['x-auth']).toExist();
+					expect(res.body.email).toBe(testUsers[1].email);
+					expect(res.body.password).toNotExist('Warning: password SHOULDnt be returned');
+				})
+				.end((err, res) => {
+					if(err)
+						return done(err);
+					User.findById(testUsers[1]._id)
+						.then(u => {
+							expect(u.tokens[0]).toInclude( {access:'auth' ,token: res.headers['x-auth']} );
+							done();  
+						})
+						.catch( e => done(e) );
+				});
+		});
+
+		it('should reject invalid credentials', (done) => {	
+			supertest(app)
+				.post('/user/login')
+				.send({email:testUsers[1].email, password:'notThePass'})
+				.expect(400)
+				.expect(res => {
+					expect(res.headers['x-auth']).toNotExist();
+					expect(res.body).toEqual( {} )
+				})
+				.end((err, res) => {
+					if(err)
+						return done(err);
+					User.findById(testUsers[1]._id)
+						.then(u => {
+							expect(u.tokens.length).toBe(0)
+							done();  
+						})
+						.catch( e => done(e) );
+				});
+
 		});
 	});
 });
