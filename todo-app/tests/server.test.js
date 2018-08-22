@@ -227,7 +227,7 @@ describe('/todo routes', () => {
 });
 
 describe('/user routes', () => {
-	//	it('', (done) => {});
+	
 	describe('GET /user/me', () => {
 		it('should return user given valid authentication', (done) => {
 			supertest(app)
@@ -343,6 +343,26 @@ describe('/user routes', () => {
 						return done(err);
 					User.findById(testUsers[1]._id)
 						.then(u => {
+							expect(u.tokens.length).toBe(0);
+							done();  
+						})
+						.catch( e => done(e) );
+				});
+
+		});
+	});
+
+	describe('DELETE /user/me/token', () => {
+		it('should remove said token from user', (done) => {
+			supertest(app)
+				.delete('/user/me/token')
+				.set('x-auth', testUsers[0].tokens[0].token)
+				.expect(200)
+				.end((err, res) => {
+					if(err)
+						return done(err);
+					User.findById( testUsers[0]._id )
+						.then(u => {
 							expect(u.tokens.length).toBe(0)
 							done();  
 						})
@@ -350,5 +370,6 @@ describe('/user routes', () => {
 				});
 
 		});
+
 	});
 });
