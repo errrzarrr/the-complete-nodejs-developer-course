@@ -15,28 +15,28 @@ let user;
 // app.use( bodyParser.json({type:'*/*'}) ); 
 app.use( bodyParser.json({type:'application/json'}) );
 
-app.post('/todo', (req, res) => {
-	// console.log('POST /todo recieved body: ', req.body);
+app.post('/todo', authenticate, (req, res) => {
+	
 	todo =
-		new Todo({text:req.body.text, completed:req.body.completed, completedAt:req.body.completedAt});
+		new Todo({text:req.body.text, completed:req.body.completed, completedAt:req.body.completedAt, _creator:req.user._id});
 	todo.save()
 		.then( (doc) => res.status(201).send(doc) )
 		.catch( (error) => res.status(400).send(`${error.name}: ${error.message}`) ); 
 });
 
-app.get('/todo', (req, res) => {
-	Todo.find()
+app.get('/todo', authenticate, (req, res) => {
+	Todo.find( {_creator: req.user._id} )
 		.then(todos => res.status(200).send( {todos} ))
 		.catch(e => res.status(400).send(e));
 });
 
-app.get('/todo/:id', (req, res) => {
+app.get('/todo/:id', authenticate, (req, res) => {
 	var id = req.params.id;
 
 	if(!ObjectID.isValid(id)) 
 		res.status(400).send();
 	else 
-		Todo.findById(id)
+		Todo.findOne({_id:id, _creator:req.user._id})
 			.then( (todo) => {
 				if(!todo)
 					res.status(404).send();
@@ -45,13 +45,14 @@ app.get('/todo/:id', (req, res) => {
 			})
 			.catch( (e) => res.status(400).send() );
 });
-app.delete('/todo/:id', (req, res) => {
+
+app.delete('/todo/:id', authenticate, (req, res) => {
 	var id = req.params.id;
 
 	if(!ObjectID.isValid(id)) 
 		res.status(400).send();
 	else
-		Todo.findByIdAndRemove(id)
+		Todo.findOneAndRemove( {_id: id, _creator: req.user._id} )
 			.then( (todo) => {
 				if(!todo)
 					res.status(404).send();
@@ -61,7 +62,7 @@ app.delete('/todo/:id', (req, res) => {
 			.catch( (e) => res.status(400).send() );
 });
 
-app.patch('/todo/:id', (req, res) => {
+app.patch('/todo/:id', authenticate, (req, res) => {
 	var id = req.params.id;
 	var body = _.pick(req.body, ['text', 'completed']);
 	var options =
@@ -77,14 +78,14 @@ app.patch('/todo/:id', (req, res) => {
 	if(!ObjectID.isValid(id)) 
 		res.status(400).send();
 	else
-		Todo.findByIdAndUpdate(id, {$set: body}, options)
-		.then( (todo) => {
-			if(!todo)
-				res.status(404).send();
-			else
-				res.status(200).send({todo}) 
-		})
-		.catch( (e) => res.status(400).send() );
+		Todo.findOneAndUpdate({_id:id, _creator:req.user._id}, {$set: body}, options)
+			.then( (todo) => {
+				if(!todo)
+					res.status(404).send();
+				else
+					res.status(200).send({todo}) 
+			})
+			.catch( (e) => res.status(400).send() );
 });
 
 app.post('/user', (req, res) => {
@@ -120,7 +121,7 @@ app.delete('/user/me/token', authenticate, (req, res) => {
 	req.user.removeToken(req.token).then( 
 		() => res.status(200).send()
 		,() => res.status(400).send()
-	);
+	); 
 });
 
 app.listen(PORT, () =>

@@ -7,13 +7,14 @@ const {Todo} = require('../db/models/Todo');
 const {User} = require('../db/models/User');
 const SALT = process.env.SALT;
 
-const testTodos = [
-	{_id: new ObjectID(), text: 'test todo #1'}
-	,{_id: new ObjectID(), text: 'test todo #2', completed:true, completedAt:111}
-];
-
 var user1Id = new ObjectID();
 var user2Id = new ObjectID();
+
+const testTodos = [
+	{_id: new ObjectID(), text: 'test todo #1', _creator:user1Id}
+	,{_id: new ObjectID(), text: 'test todo #2', completed:true, completedAt:111,  _creator:user2Id}
+];
+
 const testUsers = [{
 		_id: user1Id
 		,name: 'tester 1'
@@ -29,6 +30,10 @@ const testUsers = [{
 		,name: 'tester 2'
 		,email: 'test2@email.com'
 		,password: 'test123456'
+		,tokens: [{
+			access:'auth'
+			,token: jwt.sign({_id: user2Id, access:'auth'}, SALT).toString()
+		}]
 }];
 
 const nonValidId = 'abc123xyz';
@@ -57,6 +62,7 @@ describe('/todo routes', () => {
 			var text = 'Text to test /todo';
 			supertest(app)
 				.post('/todo')
+				.set('x-auth', testUsers[0].tokens[0].token)
 				.send({text})
 				.expect(201)
 				.expect((res) =>
@@ -79,6 +85,7 @@ describe('/todo routes', () => {
 		it('should NOT create a new todo when given an invalid body data', (done) => {
 			supertest(app)
 				.post('/todo')
+				.set('x-auth', testUsers[0].tokens[0].token)
 				.send({})
 				.expect(400)
 				.end((err, res) => {
@@ -99,15 +106,17 @@ describe('/todo routes', () => {
 	describe('GET /todo', () => {
 		it('should retrieve all todos', (done) => {
 			supertest(app)
-				.get('/todo') 
+				.get('/todo')
+				.set('x-auth', testUsers[0].tokens[0].token)
 				.expect(200)
+				.expect(res => expect(res.body.todos.length).toBe(1) )
 				.end((err, res) => {
 					if(err)
 						done(err);
 					else {
-						Todo.find({})
+						Todo.find({_creator:testUsers[0]._id})
 							.then((todos) => {
-								expect(todos.length).toBe(testTodos.length);
+								expect(todos.length).toBe(1);
 								done();
 							})
 							.catch((e) => done(e));
@@ -118,6 +127,7 @@ describe('/todo routes', () => {
 			var testId = testTodos[0]._id.toHexString();
 			supertest(app)
 				.get(`/todo/${testId}`)
+				.set('x-auth', testUsers[0].tokens[0].token)
 				.expect(200)
 				.expect((res) => {
 					expect(res.body.todo.text).toBe(testTodos[0].text)
@@ -128,13 +138,24 @@ describe('/todo routes', () => {
 			var testId = new ObjectID().toHexString();
 			supertest(app)
 				.get(`/todo/${testId}`)
+				.set('x-auth', testUsers[0].tokens[0].token)
 				.expect(404)
 				.end(done);
 		});
 		it('should return 400 given a non-valid _id', (done) => {
 			supertest(app)
 				.get(`/todo/${nonValidId}/`)
+				.set('x-auth', testUsers[0].tokens[0].token)
 				.expect(400)
+				.end(done);
+		});
+
+		it('should not retrieve doc created by another user', (done) => {
+			var testId = testTodos[0]._id.toHexString();
+			supertest(app)
+				.get(`/todo/${testId}/`)
+				.set('x-auth', testUsers[1].tokens[0].token)
+				.expect(404)
 				.end(done);
 		});
 		
@@ -145,6 +166,7 @@ describe('/todo routes', () => {
 			var testId = testTodos[0]._id.toHexString();
 			supertest(app)
 				.delete(`/todo/${testId}/`)
+				.set('x-auth', testUsers[0].tokens[0].token)
 				.expect(200)
 				.expect( res => expect(res.body.todo._id).toBe(testId) )
 				.end((err,res) => {
@@ -164,15 +186,17 @@ describe('/todo routes', () => {
 			var testId = new ObjectID().toHexString();
 			supertest(app)
 				.get(`/todo/${testId}`)
+				.set('x-auth', testUsers[1].tokens[0].token)
 				.expect(404)
 				.end(done);
-		});
+		});	
 		
 		it('should return 400 given a non-valid _id', (done) => {
 			supertest(app)
 				.get(`/todo/${nonValidId}/`)
+				.set('x-auth', testUsers[1].tokens[0].token)
 				.expect(400)
-				.end(done); 
+				.end(done);
 		});
 	});
 
@@ -184,6 +208,7 @@ describe('/todo routes', () => {
 			
 			supertest(app)
 				.patch(`/todo/${testId}/`)
+				.set('x-auth', testUsers[0].tokens[0].token)
 				.send(testBody)
 				.expect(200)
 				.expect((res) => {
@@ -194,11 +219,36 @@ describe('/todo routes', () => {
 				.end(done);
 		});
 
+		it('should not update todo given invalid credentials', (done) => {
+			var testId = testTodos[0]._id.toHexString();
+			var testBody = {text: "updated text", completed:true};
+			
+			supertest(app)
+				.patch(`/todo/${testId}/`)
+				.set('x-auth', null)
+				.send(testBody)
+				.expect(401)
+				.expect((res) => expect(res.body).toEqual( {} ) )
+				.end((err, res) => {
+					if(err)
+						done(err);
+					else {
+						Todo.findOne({_id:testId, _creator:testUsers[0]._id})
+							.then((todo) => {
+								expect(todo.text).toBe(testTodos[0].text);
+								done();
+							})
+							.catch((e) => done(e));
+					}
+				});
+		});
+
 		it('should clear completedAt when todo is set as not completed', (done) => {
 			var testId = testTodos[1]._id.toHexString();
 			var testBody = {text: "updated text", completed:false};
 			supertest(app)
 				.patch(`/todo/${testId}/`)
+				.set('x-auth', testUsers[1].tokens[0].token)
 				.send(testBody)
 				.expect(200)
 				.expect((res) => {
@@ -213,6 +263,7 @@ describe('/todo routes', () => {
 			var testId = new ObjectID().toHexString();
 			supertest(app)
 				.patch(`/todo/${testId}`)
+				.set('x-auth', testUsers[0].tokens[0].token)
 				.expect(404)
 				.end(done);
 		});
@@ -220,6 +271,7 @@ describe('/todo routes', () => {
 		it('should return 400 given a non-valid _id', (done) => {
 			supertest(app)
 				.patch(`/todo/${nonValidId}/`)
+				.set('x-auth', testUsers[0].tokens[0].token)
 				.expect(400)
 				.end(done); 
 		});	
@@ -322,7 +374,7 @@ describe('/user routes', () => {
 						return done(err);
 					User.findById(testUsers[1]._id)
 						.then(u => {
-							expect(u.tokens[0]).toInclude( {access:'auth' ,token: res.headers['x-auth']} );
+							expect(u.tokens[1]).toInclude( {access:'auth' ,token: res.headers['x-auth']} );
 							done();  
 						})
 						.catch( e => done(e) );
@@ -343,7 +395,7 @@ describe('/user routes', () => {
 						return done(err);
 					User.findById(testUsers[1]._id)
 						.then(u => {
-							expect(u.tokens.length).toBe(0);
+							expect(u.tokens.length).toBe(1);
 							done();  
 						})
 						.catch( e => done(e) );
