@@ -1,0 +1,10 @@
+{
+    "test": {
+        "PORT": 3000
+        ,"ENV_TABLE" : "todoApp_test"
+    }
+    ,"development": {
+        "PORT": 3000
+        ,"ENV_TABLE" : "todoApp"
+    }
+}
