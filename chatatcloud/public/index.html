@@ -4,17 +4,25 @@
 	<head>
 		<meta charset="utf-8"/>
 		<title>chat@cloud</title>
-		<link rel="stylesheet" type="text/css" src=""/>
+		<link rel="stylesheet" type="text/css" href="./css/styles.css"/>
 	</head>
-	<body>
-		<p>Welcome to <strong>chat at cloud!</strong></p>
+	<body class="chat">
+		<div class="chat__sidebar">
+			<h3>Chat at cloud</h3>
+			<h4>People</h4>
+			<div id="users"></div>
+		</div>
 
-		<ol id="messages"></ol>
-		<form id="message-form">
-			<input name="message" type="text"/>
-			<button>Send</button>
-		</form>
-		<button id="send-location">Send Location</button>
+		<div class="chat__main">
+			<ol id="messages" class="chat__messages"></ol>
+			<div class="chat__footer">
+				<form id="message-form">
+					<input name="message" type="text"/>
+					<button>Send</button>
+				</form>
+				<button id="send-location">Send location</button>
+			</div>
+		</div>
 		
 		<footer></footer>
 		<script src="/socket.io/socket.io.js"></script>
