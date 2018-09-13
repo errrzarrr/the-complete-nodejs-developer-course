@@ -17,8 +17,9 @@ socket.on('connect', function()  {
 
 socket.on('newMessage', (message) => {
 	console.log('newMessage', message);
+	var formattedTime = moment(message.createdAt).format("hh:mma")
 	var li = $('<li></li>');
-	li.text(`${message.from}: ${message.text}`);
+	li.text(`[${formattedTime}] ${message.from}: ${message.text}`);
 	$('#messages').append(li);
 });
 $('#message-form').on('submit', function(e){
@@ -29,9 +30,10 @@ $('#message-form').on('submit', function(e){
 	);
 });
 socket.on('newLocationMessage', function(message) {
+	var formattedTime = moment(message.createdAt).format("hh:mma")
 	var li = $(`<li></li>`);
-	var a = $(`<a target="_blank">My current location</a>`);
-	li.text(`${message.from}: `);
+	var a = $(`<a target="_blank">This is my current location</a>`);
+	li.text(`[${formattedTime}] ${message.from}: `);
 	a.attr(`href`, message.url);
 	li.append(a);
 	$('#messages').append(li);
