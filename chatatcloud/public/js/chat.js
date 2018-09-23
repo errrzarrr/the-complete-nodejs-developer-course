@@ -14,18 +14,35 @@ function scrollToBotton() {
 	}
 };
 			
-socket.on('connect', function()  {
+socket.on('connect', function() {
 	console.log('Connected to server');
-	
+	var params = $.deparam( window.location.search );
+	socket.emit('join', params, function(err) {
+		if(err) {
+			alert(err);
+			window.location.href = '/';
+		}
+		else 
+			console.log('No error');
+	});
 	socket.emit('createMessage' 
-		,{ from: 'user' ,text: 'hello server'}
+		,{ from: 'user' ,text: 'hello server' }
 		,() => {}
 	);
-	
 	socket.emit('createMessage' 
 		,{ from: 'Frank' ,text: 'Here I am. I request acknowledgement' }   
 		,function(msg) {
 			console.log(`Message from Server: ${msg}`);
+	});
+	socket.on('updateUserList', function(users) {
+		 var ol = $('<ol></ol>');
+
+		 users.forEach(function(user){
+			 ol.append( $('<li></li>').text(user) );
+		 });
+
+		$('#users').html(ol);
+		console.log('Users list', users);
 	});
 });
 
