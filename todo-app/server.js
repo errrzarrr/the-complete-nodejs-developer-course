@@ -89,8 +89,8 @@ app.patch('/todo/:id', authenticate, (req, res) => {
 });
 
 app.post('/user', (req, res) => {
-	var body = _.pick(req.body, ['email', 'name', 'age', 'location', 'password']);
-	var user = new User(body);
+	const body = _.pick(req.body, ['email', 'name', 'age', 'location', 'password']);
+	const user = new User(body);
 	
 	user.save()
 		.then( () => {
@@ -106,22 +106,24 @@ app.get('/user/me', authenticate, (req, res) => {
 	res.status(200).send(req.user);
 });
 
-app.post('/user/login', (req, res) => {
-	var body = _.pick(req.body, ['email','password']);
-	
-	User.findByCredentials(body.email,body.password)
-		.then( user => {
-			return user.generateAuthToken()
-				.then(token => res.header('x-auth',token).send(user) )			
-		})
-		.catch( e => res.status(400).send() );
+app.post('/user/login', async (req, res) => {
+	const body = _.pick(req.body, ['email','password']);
+	try {
+		const user = await User.findByCredentials(body.email,body.password);
+		const token = await user.generateAuthToken();
+		res.header('x-auth',token).send(user);
+	} catch(e) {
+		res.status(400).send();
+	}
 });
 
-app.delete('/user/me/token', authenticate, (req, res) => {
-	req.user.removeToken(req.token).then( 
-		() => res.status(200).send()
-		,() => res.status(400).send()
-	); 
+app.delete('/user/me/token', authenticate, async (req, res) => {
+	try {
+		await req.user.removeToken(req.token);
+		res.status(200).send()
+	} catch(e) {
+		res.status(400).send()
+	}
 });
 
 app.listen(PORT, () =>
