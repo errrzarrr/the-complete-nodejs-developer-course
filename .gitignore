@@ -67,5 +67,5 @@ typings/
 
 # especific files
 package-lock.json
-notes-data.json
-
+notes-data.json 
+keys.txt
